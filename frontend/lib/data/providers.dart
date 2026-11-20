@@ -49,6 +49,11 @@ class AuthNotifier extends StateNotifier<J?> {
     } catch (_) {}
   }
 
+  Future<void> updateMe({String? name, J? profile}) async {
+    state = Map<String, dynamic>.from(await api.patch('/users/me/', {if (name != null) 'name': name, if (profile != null) 'profile': profile}));
+    (await SharedPreferences.getInstance()).setString('user', jsonEncode(state));
+  }
+
   Future<void> saveProfile(J profile) async {
     state = Map<String, dynamic>.from(await api.patch('/users/me/', {'profile': profile}));
     (await SharedPreferences.getInstance()).setString('user', jsonEncode(state));

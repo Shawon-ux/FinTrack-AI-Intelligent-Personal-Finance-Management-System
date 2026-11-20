@@ -10,6 +10,14 @@ Future<void> main() async {
   await container.read(apiProvider).load();
   await container.read(authProvider.notifier).restore();
   await container.read(txProvider.notifier).init();
+  // Dev/screenshot helper only: flutter build web --dart-define=AUTO_LOGIN=demo@fintrack.ai:demo1234
+  const auto = String.fromEnvironment('AUTO_LOGIN');
+  if (auto.contains(':') && container.read(authProvider) == null) {
+    final i = auto.indexOf(':');
+    try {
+      await container.read(authProvider.notifier).authenticate('login', auto.substring(0, i), auto.substring(i + 1));
+    } catch (_) {}
+  }
   runApp(UncontrolledProviderScope(container: container, child: const FinTrackApp()));
 }
 

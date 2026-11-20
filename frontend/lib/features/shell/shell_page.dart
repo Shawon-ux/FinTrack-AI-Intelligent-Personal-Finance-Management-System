@@ -17,7 +17,7 @@ class ShellPage extends ConsumerStatefulWidget {
 }
 
 class _ShellPageState extends ConsumerState<ShellPage> {
-  int tab = 0;
+  int tab = const int.fromEnvironment('START_TAB', defaultValue: 0);
   static const pages = [DashboardPage(), TransactionsPage(), BudgetsPage(), InsightsPage(), ProfilePage()];
 
   @override
