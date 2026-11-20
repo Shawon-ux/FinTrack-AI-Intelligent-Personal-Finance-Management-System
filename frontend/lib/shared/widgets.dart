@@ -1,4 +1,6 @@
+import 'dart:convert';
 import 'dart:math' as math;
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import '../core/theme.dart';
 
@@ -63,11 +65,13 @@ class Pad extends StatelessWidget {
 }
 
 class Bar extends StatelessWidget {
-  const Bar(this.pct, {super.key});
+  const Bar(this.pct, {super.key, this.goal = false});
   final double pct;
+  /// goal: reaching 100% is good (green), not an overspend (red).
+  final bool goal;
   @override
   Widget build(BuildContext context) {
-    final col = pct >= 100 ? C.bad : pct >= 75 ? C.warn : C.p;
+    final col = goal ? (pct >= 100 ? C.ok : C.p) : (pct >= 100 ? C.bad : pct >= 75 ? C.warn : C.p);
     return ClipRRect(
       borderRadius: BorderRadius.circular(9),
       child: LinearProgressIndicator(value: (pct / 100).clamp(0, 1).toDouble(), minHeight: 8, backgroundColor: C.card2, color: col),
@@ -95,7 +99,7 @@ class _BarPainter extends CustomPainter {
       final bh = math.max(v[i] / mx * h, 3.0);
       final r = RRect.fromRectAndRadius(Rect.fromLTWH(i * bw + bw * .2, h - bh, bw * .6, bh), const Radius.circular(5));
       c.drawRRect(r, Paint()..shader = C.grad.createShader(r.outerRect));
-      final tp = TextPainter(text: TextSpan(text: l[i], style: const TextStyle(color: C.mut, fontSize: 10)), textDirection: TextDirection.ltr)..layout();
+      final tp = TextPainter(text: TextSpan(text: l[i], style: TextStyle(color: C.mut, fontSize: 10)), textDirection: TextDirection.ltr)..layout();
       tp.paint(c, Offset(i * bw + bw / 2 - tp.width / 2, h + 4));
     }
   }
@@ -181,7 +185,7 @@ class _LinePainter extends CustomPainter {
       }
     }
     void label(String t, double x) {
-      final tp = TextPainter(text: TextSpan(text: t, style: const TextStyle(color: C.mut, fontSize: 10)), textDirection: TextDirection.ltr)..layout();
+      final tp = TextPainter(text: TextSpan(text: t, style: TextStyle(color: C.mut, fontSize: 10)), textDirection: TextDirection.ltr)..layout();
       tp.paint(c, Offset(x, h + 2));
     }
     label('recent', 0);
@@ -210,3 +214,37 @@ class ScoreRing extends StatelessWidget {
 }
 
 void snack(BuildContext c, String m) => ScaffoldMessenger.of(c).showSnackBar(SnackBar(content: Text(m), behavior: SnackBarBehavior.floating));
+
+final _avatarBytes = <String, Uint8List>{};
+
+/// Profile picture (stored as a data URL) with an initial-letter fallback.
+class Avatar extends StatelessWidget {
+  const Avatar({super.key, required this.name, this.dataUrl, this.radius = 24});
+  final String name;
+  final String? dataUrl;
+  final double radius;
+
+  Uint8List? get _bytes {
+    final d = dataUrl;
+    if (d == null || d.isEmpty || !d.contains(',')) return null;
+    return _avatarBytes.putIfAbsent(d, () {
+      try {
+        return base64Decode(d.substring(d.indexOf(',') + 1));
+      } catch (_) {
+        return Uint8List(0);
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final b = _bytes;
+    final ok = b != null && b.isNotEmpty;
+    return CircleAvatar(
+      radius: radius,
+      backgroundColor: C.p,
+      backgroundImage: ok ? MemoryImage(b) : null,
+      child: ok ? null : Text(name.isEmpty ? '?' : name[0].toUpperCase(), style: TextStyle(fontSize: radius * .9, fontWeight: FontWeight.w800, color: Colors.white)),
+    );
+  }
+}

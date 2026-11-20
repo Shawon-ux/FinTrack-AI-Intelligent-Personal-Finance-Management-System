@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/material.dart' show ThemeMode;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fintrack_ai/main.dart';
@@ -67,5 +68,26 @@ void main() {
     await c.read(authProvider.notifier).authenticate('login', email, 'longpass123');
     expect(c.read(authProvider)?['email'], email);
     await c.read(apiProvider).delete('/users/me/delete/');
+  });
+
+  test('profile picture round trip and theme preference persist', () async {
+    TestWidgetsFlutterBinding.ensureInitialized();
+    final c = ProviderContainer();
+    addTearDown(c.dispose);
+    await c.read(authProvider.notifier).authenticate('login', 'demo@fintrack.ai', 'demo1234');
+    const img = 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQ';
+    await c.read(authProvider.notifier).updateMe(profile: {'avatar': img});
+    expect(c.read(authProvider)?['profile']['avatar'], img);
+    await c.read(authProvider.notifier).reloadMe();                       // survives a reload from the server
+    expect(c.read(authProvider)?['profile']['avatar'], img);
+    await c.read(authProvider.notifier).updateMe(profile: {'avatar': ''}); // remove
+    expect(c.read(authProvider)?['profile']['avatar'], '');
+    await expectLater(c.read(authProvider.notifier).updateMe(profile: {'avatar': 'http://x'}), throwsA(isA<Object>())); // non-image rejected
+
+    await c.read(themeProvider.notifier).set(ThemeMode.light);
+    final c2 = ProviderContainer();
+    addTearDown(c2.dispose);
+    await c2.read(themeProvider.notifier).load();
+    expect(c2.read(themeProvider), ThemeMode.light);
   });
 }

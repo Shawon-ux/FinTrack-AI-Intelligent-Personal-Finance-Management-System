@@ -19,7 +19,7 @@ class TxTile extends ConsumerWidget {
       leading: Container(width: 42, height: 42, alignment: Alignment.center, decoration: BoxDecoration(color: C.card2, borderRadius: BorderRadius.circular(13)), child: Text(catIcon[t['category']] ?? (tr ? '🔁' : '•'), style: const TextStyle(fontSize: 18))),
       title: Text('${(t['merchant_name'] ?? '').toString().isNotEmpty ? t['merchant_name'] : (t['description'] ?? '').toString().isNotEmpty ? t['description'] : (t['category'] ?? 'Transaction')}', maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontWeight: FontWeight.w600)),
       subtitle: Wrap(spacing: 6, crossAxisAlignment: WrapCrossAlignment.center, children: [
-        Text('${t['category'] ?? ''} · ${d == null ? '' : '${d.day} ${mo[d.month - 1]}'}', style: const TextStyle(fontSize: 12, color: C.mut)),
+        Text('${t['category'] ?? ''} · ${d == null ? '' : '${d.day} ${mo[d.month - 1]}'}', style: TextStyle(fontSize: 12, color: C.mut)),
         if (t['sync_status'] == 'pending') const Pill('⏳ pending', color: C.warn),
         if (t['has_alert'] == true) const Pill('unusual', color: C.bad),
       ]),
@@ -34,10 +34,10 @@ class TxTile extends ConsumerWidget {
         padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
         child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text(fmt(double.tryParse('${t['amount']}')), style: const TextStyle(fontSize: 26, fontWeight: FontWeight.bold)),
-          Text('${t['merchant_name'] ?? ''} ${t['description'] ?? ''}', style: const TextStyle(color: C.mut)),
-          if ((t['ai_category'] ?? '').toString().isNotEmpty) Text('AI suggested: ${t['ai_category']}', style: const TextStyle(color: C.mut, fontSize: 12)),
+          Text('${t['merchant_name'] ?? ''} ${t['description'] ?? ''}', style: TextStyle(color: C.mut)),
+          if ((t['ai_category'] ?? '').toString().isNotEmpty) Text('AI suggested: ${t['ai_category']}', style: TextStyle(color: C.mut, fontSize: 12)),
           const SizedBox(height: 12),
-          const Text('Category (editable)', style: TextStyle(color: C.mut, fontSize: 12)),
+          Text('Category (editable)', style: TextStyle(color: C.mut, fontSize: 12)),
           Wrap(spacing: 6, children: [
             for (final c in expenseCats)
               ChoiceChip(
@@ -91,9 +91,9 @@ class _TransactionsPageState extends ConsumerState<TransactionsPage> {
         const SizedBox(height: 8),
         Card(child: Pad(child: Column(children: [
           for (final t in list.take(100)) TxTile(t),
-          if (list.isEmpty) const Padding(padding: EdgeInsets.all(12), child: Text('No transactions match.', style: TextStyle(color: C.mut))),
+          if (list.isEmpty) Padding(padding: EdgeInsets.all(12), child: Text('No transactions match.', style: TextStyle(color: C.mut))),
         ]))),
-        Center(child: Text('${list.length} transaction(s)', style: const TextStyle(color: C.mut, fontSize: 12))),
+        Center(child: Text('${list.length} transaction(s)', style: TextStyle(color: C.mut, fontSize: 12))),
         const SizedBox(height: 70),
       ]),
     );

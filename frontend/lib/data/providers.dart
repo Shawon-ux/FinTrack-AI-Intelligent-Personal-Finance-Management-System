@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart' show ThemeMode;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../core/api_client.dart';
@@ -229,3 +230,22 @@ String fmt(num? n) {
 
 String errText(Object e) => e is ApiException ? (e.offline ? 'You are offline - this needs a connection' : e.message) : '$e';
 bool get isWeb => kIsWeb;
+
+// ---------------- theme (dark / light / system) + shell tab ----------------
+class ThemeNotifier extends StateNotifier<ThemeMode> {
+  ThemeNotifier() : super(ThemeMode.dark);
+  Future<void> load() async {
+    // START_THEME is a dev/screenshot preset (e.g. --dart-define=START_THEME=light)
+    final v = (await SharedPreferences.getInstance()).getString('theme_mode') ?? const String.fromEnvironment('START_THEME');
+    state = ThemeMode.values.firstWhere((m) => m.name == v, orElse: () => ThemeMode.dark);
+  }
+
+  Future<void> set(ThemeMode m) async {
+    state = m;
+    (await SharedPreferences.getInstance()).setString('theme_mode', m.name);
+  }
+}
+
+final themeProvider = StateNotifierProvider<ThemeNotifier, ThemeMode>((ref) => ThemeNotifier());
+// kept in a provider so the selected tab survives a theme change (which rebuilds the app tree)
+final shellTabProvider = StateProvider<int>((ref) => const int.fromEnvironment('START_TAB', defaultValue: 0));

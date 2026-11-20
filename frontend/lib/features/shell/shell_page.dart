@@ -17,7 +17,6 @@ class ShellPage extends ConsumerStatefulWidget {
 }
 
 class _ShellPageState extends ConsumerState<ShellPage> {
-  int tab = const int.fromEnvironment('START_TAB', defaultValue: 0);
   static const pages = [DashboardPage(), TransactionsPage(), BudgetsPage(), InsightsPage(), ProfilePage()];
 
   @override
@@ -33,6 +32,7 @@ class _ShellPageState extends ConsumerState<ShellPage> {
   @override
   Widget build(BuildContext context) {
     final tx = ref.watch(txProvider);
+    final tab = ref.watch(shellTabProvider);
     return Scaffold(
       body: SafeArea(
         child: Column(children: [
@@ -59,7 +59,7 @@ class _ShellPageState extends ConsumerState<ShellPage> {
           : null,
       bottomNavigationBar: NavigationBar(
         selectedIndex: tab,
-        onDestinationSelected: (i) => setState(() => tab = i),
+        onDestinationSelected: (i) => ref.read(shellTabProvider.notifier).state = i,
         destinations: const [
           NavigationDestination(icon: Icon(Icons.home_outlined), selectedIcon: Icon(Icons.home), label: 'Home'),
           NavigationDestination(icon: Icon(Icons.receipt_long_outlined), selectedIcon: Icon(Icons.receipt_long), label: 'Transactions'),

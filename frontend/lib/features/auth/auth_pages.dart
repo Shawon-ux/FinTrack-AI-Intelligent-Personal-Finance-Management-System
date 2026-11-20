@@ -175,14 +175,10 @@ class _WelcomeState extends State<WelcomePage> {
                                       ),
                                       padding: const EdgeInsets.all(18),
                                       decoration: BoxDecoration(
-                                        color: Colors.white.withValues(
-                                          alpha: .06,
-                                        ),
+                                        color: C.glass,
                                         borderRadius: BorderRadius.circular(24),
                                         border: Border.all(
-                                          color: Colors.white.withValues(
-                                            alpha: .12,
-                                          ),
+                                          color: C.glassLine,
                                         ),
                                       ),
                                       child: Column(
@@ -206,7 +202,7 @@ class _WelcomeState extends State<WelcomePage> {
                                           const SizedBox(height: 4),
                                           Text(
                                             f.$3,
-                                            style: const TextStyle(
+                                            style: TextStyle(
                                               color: C.mut,
                                               fontSize: 13,
                                               height: 1.35,
@@ -259,7 +255,7 @@ class _WelcomeState extends State<WelcomePage> {
                                     vertical: 15,
                                   ),
                                   side: BorderSide(
-                                    color: Colors.white.withValues(alpha: .2),
+                                    color: C.glassLine,
                                   ),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(14),
@@ -324,7 +320,7 @@ class _AuthPageState extends ConsumerState<AuthPage>
       builder: (ctx) => AlertDialog(
         title: const Text('Server address'),
         content: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
-          const Text('Where your FinTrack AI backend runs, e.g. http://192.168.0.101:8000 (same Wi-Fi) or https://api.yourdomain.com', style: TextStyle(fontSize: 12, color: C.mut)),
+          Text('Where your FinTrack AI backend runs, e.g. http://192.168.0.101:8000 (same Wi-Fi) or https://api.yourdomain.com', style: TextStyle(fontSize: 12, color: C.mut)),
           const SizedBox(height: 10),
           TextField(controller: c, keyboardType: TextInputType.url, decoration: const InputDecoration(labelText: 'URL')),
         ]),
@@ -422,7 +418,7 @@ class _AuthPageState extends ConsumerState<AuthPage>
     prefixIcon: Icon(icon, size: 20, color: C.mut),
     suffixIcon: suffix,
     errorText: err,
-    fillColor: Colors.white.withValues(alpha: .06),
+    fillColor: C.glass,
   );
 
   @override
@@ -497,7 +493,7 @@ class _AuthPageState extends ConsumerState<AuthPage>
             pass.text.isEmpty
                 ? 'At least 8 characters. Mix letters, numbers and symbols.'
                 : ['Weak', 'Okay', 'Good', 'Strong'][strength.clamp(1, 4) - 1],
-            style: const TextStyle(fontSize: 12, color: C.mut),
+            style: TextStyle(fontSize: 12, color: C.mut),
           ),
         ],
       ],
@@ -558,7 +554,7 @@ class _AuthPageState extends ConsumerState<AuthPage>
                                 register
                                     ? 'Start your intelligent finance journey'
                                     : 'Sign in to continue to FinTrack AI',
-                                style: const TextStyle(color: C.mut),
+                                style: TextStyle(color: C.mut),
                               ),
                             ],
                           ),
@@ -578,10 +574,10 @@ class _AuthPageState extends ConsumerState<AuthPage>
                           child: Container(
                             padding: const EdgeInsets.all(20),
                             decoration: BoxDecoration(
-                              color: Colors.white.withValues(alpha: .05),
+                              color: C.glass,
                               borderRadius: BorderRadius.circular(26),
                               border: Border.all(
-                                color: Colors.white.withValues(alpha: .1),
+                                color: C.glassLine,
                               ),
                               boxShadow: const [
                                 BoxShadow(
@@ -705,11 +701,9 @@ class _AuthPageState extends ConsumerState<AuthPage>
                               'Fill demo account',
                               style: TextStyle(fontSize: 12),
                             ),
-                            backgroundColor: Colors.white.withValues(
-                              alpha: .06,
-                            ),
+                            backgroundColor: C.glass,
                             side: BorderSide(
-                              color: Colors.white.withValues(alpha: .12),
+                              color: C.glassLine,
                             ),
                             onPressed: () => setState(() {
                               email.text = 'demo@fintrack.ai';
@@ -720,14 +714,14 @@ class _AuthPageState extends ConsumerState<AuthPage>
                         const SizedBox(height: 6),
                         TextButton.icon(
                           onPressed: _server,
-                          icon: const Icon(Icons.dns_outlined, size: 16, color: C.mut),
-                          label: Text(ref.read(apiProvider).base, style: const TextStyle(color: C.mut, fontSize: 11)),
+                          icon: Icon(Icons.dns_outlined, size: 16, color: C.mut),
+                          label: Text(ref.read(apiProvider).base, style: TextStyle(color: C.mut, fontSize: 11)),
                         ),
                         TextButton(
                           onPressed: () => _switch(!register),
                           child: Text.rich(
                             TextSpan(
-                              style: const TextStyle(color: C.mut),
+                              style: TextStyle(color: C.mut),
                               children: [
                                 TextSpan(
                                   text: register
@@ -803,7 +797,7 @@ class _AuthPageState extends ConsumerState<AuthPage>
                               ),
                             ),
                             const SizedBox(height: 6),
-                            const _Reveal(
+                            _Reveal(
                               delay: 350,
                               child: Text(
                                 'Taking you to sign in…',

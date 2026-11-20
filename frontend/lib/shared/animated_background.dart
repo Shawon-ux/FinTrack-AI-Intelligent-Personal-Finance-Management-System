@@ -27,7 +27,7 @@ class _AnimatedBackgroundState extends State<AnimatedBackground> with SingleTick
       child: Container(
         width: size,
         height: size,
-        decoration: BoxDecoration(shape: BoxShape.circle, gradient: RadialGradient(colors: [color.withValues(alpha: .55), color.withValues(alpha: 0)])),
+        decoration: BoxDecoration(shape: BoxShape.circle, gradient: RadialGradient(colors: [color.withValues(alpha: C.dark ? .55 : .28), color.withValues(alpha: 0)])),
       ),
     );
   }
@@ -35,7 +35,7 @@ class _AnimatedBackgroundState extends State<AnimatedBackground> with SingleTick
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: const BoxDecoration(gradient: LinearGradient(colors: [Color(0xFF0B0F1E), Color(0xFF111736), Color(0xFF0B0F1E)], begin: Alignment.topCenter, end: Alignment.bottomCenter)),
+      decoration: BoxDecoration(gradient: LinearGradient(colors: C.dark ? const [Color(0xFF0B0F1E), Color(0xFF111736), Color(0xFF0B0F1E)] : const [Color(0xFFF4F5FB), Color(0xFFEAEBFA), Color(0xFFF4F5FB)], begin: Alignment.topCenter, end: Alignment.bottomCenter)),
       child: LayoutBuilder(builder: (context, box) {
         final s = Size(box.maxWidth, box.maxHeight);
         return Stack(children: [

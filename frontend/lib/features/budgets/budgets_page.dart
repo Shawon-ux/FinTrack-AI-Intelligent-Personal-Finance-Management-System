@@ -21,7 +21,7 @@ class BudgetsPage extends ConsumerWidget {
 
 Widget _async<T>(AsyncValue<T> v, Widget Function(T) b) => v.when(
     loading: () => const Center(child: CircularProgressIndicator()),
-    error: (e, _) => Center(child: Padding(padding: const EdgeInsets.all(20), child: Text(errText(e), style: const TextStyle(color: C.mut)))),
+    error: (e, _) => Center(child: Padding(padding: const EdgeInsets.all(20), child: Text(errText(e), style: TextStyle(color: C.mut)))),
     data: b);
 
 class _Budgets extends ConsumerWidget {
@@ -50,7 +50,7 @@ class _Budgets extends ConsumerWidget {
                   Padding(
                       padding: const EdgeInsets.only(top: 6),
                       child: Text('${b['days_left']} days left · projected ${fmt(b['projected'])} · overrun risk ${b['overrun_risk']}',
-                          style: const TextStyle(color: C.mut, fontSize: 12))),
+                          style: TextStyle(color: C.mut, fontSize: 12))),
                 for (final c in b['categories'])
                   Padding(
                     padding: const EdgeInsets.only(top: 10),
@@ -117,11 +117,11 @@ class _Goals extends ConsumerWidget {
                       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 Row(children: [Expanded(child: Text('🎯 ${g['name']}', style: const TextStyle(fontWeight: FontWeight.bold))), Pill('${g['pct']}%', color: C.p)]),
                 const SizedBox(height: 10),
-                Bar((g['pct'] as num).toDouble()),
+                Bar((g['pct'] as num).toDouble(), goal: true),
                 const SizedBox(height: 8),
                 Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
                   Text('${fmt(double.tryParse('${g['saved_amount']}'))} / ${fmt(double.tryParse('${g['target_amount']}'))}', style: const TextStyle(fontSize: 12)),
-                  if (g['monthly_required'] != null) Text('Save ${fmt(g['monthly_required'])}/mo', style: const TextStyle(fontSize: 12, color: C.mut)),
+                  if (g['monthly_required'] != null) Text('Save ${fmt(g['monthly_required'])}/mo', style: TextStyle(fontSize: 12, color: C.mut)),
                 ]),
                 TextButton(onPressed: () => _contribute(context, ref, '${g['id']}'), child: const Text('+ Add contribution')),
               ]))),
@@ -198,6 +198,6 @@ class _Recurring extends ConsumerWidget {
                       child: const Text('Mark paid', style: TextStyle(color: C.p2, fontSize: 12))),
                 ]),
               )),
-            if (list.isEmpty) const Text('No recurring items.', style: TextStyle(color: C.mut)),
+            if (list.isEmpty) Text('No recurring items.', style: TextStyle(color: C.mut)),
           ]));
 }

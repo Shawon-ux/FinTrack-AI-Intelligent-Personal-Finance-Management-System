@@ -13,6 +13,13 @@ class ProfileSer(serializers.ModelSerializer):
         exclude = ["user"]
         read_only_fields = ["is_premium"]
 
+    def validate_avatar(self, v):
+        if v and not v.startswith("data:image/"):
+            raise serializers.ValidationError("Avatar must be an image.")
+        if len(v) > 400_000:  # ~300 KB of image data
+            raise serializers.ValidationError("Image is too large. Please choose a smaller picture.")
+        return v
+
 
 class UserSer(serializers.ModelSerializer):
     profile = ProfileSer()

@@ -21,7 +21,7 @@ class _AdminState extends ConsumerState<AdminPage> {
 
   Widget _wrap<T>(AsyncValue<T> v, Widget Function(T) b) => v.when(
       loading: () => const Center(child: CircularProgressIndicator()),
-      error: (e, _) => Center(child: Text(errText(e), style: const TextStyle(color: C.mut))),
+      error: (e, _) => Center(child: Text(errText(e), style: TextStyle(color: C.mut))),
       data: b);
 
   @override
@@ -64,7 +64,7 @@ class _AdminState extends ConsumerState<AdminPage> {
                     decoration: BoxDecoration(color: C.card, borderRadius: BorderRadius.circular(16), border: Border.all(color: C.line)),
                     child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
                       Text('${e.value ?? 0}', style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
-                      Text(e.key, style: const TextStyle(color: C.mut, fontSize: 12)),
+                      Text(e.key, style: TextStyle(color: C.mut, fontSize: 12)),
                     ]),
                   ),
               ],
@@ -92,11 +92,11 @@ class _AdminState extends ConsumerState<AdminPage> {
                   padding: const EdgeInsets.only(top: 8),
                   child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                     Row(children: [Expanded(child: Text('${m['name']}', style: const TextStyle(fontWeight: FontWeight.w600))), Pill('${m['version']}', color: m['is_active'] == true ? C.ok : C.mut)]),
-                    Text('trained on: ${m['trained_on']} · ${m['metrics']}', style: const TextStyle(color: C.mut, fontSize: 11)),
+                    Text('trained on: ${m['trained_on']} · ${m['metrics']}', style: TextStyle(color: C.mut, fontSize: 11)),
                   ]),
                 ),
             ]))),
-            const Text('🔒 Aggregate view only - private transaction details are not shown to administrators.', style: TextStyle(color: C.mut, fontSize: 12)),
+            Text('🔒 Aggregate view only - private transaction details are not shown to administrators.', style: TextStyle(color: C.mut, fontSize: 12)),
           ]),
         );
       });
@@ -111,13 +111,13 @@ class _AdminState extends ConsumerState<AdminPage> {
               Pill(u['active'] == true ? 'active' : 'disabled', color: u['active'] == true ? C.ok : C.bad),
               if (u['premium'] == true) const Padding(padding: EdgeInsets.only(left: 6), child: Pill('premium', color: C.p)),
             ]),
-            Text('${u['tx_count']} transactions · joined ${'${u['joined']}'.substring(0, 10)}', style: const TextStyle(color: C.mut, fontSize: 12)),
+            Text('${u['tx_count']} transactions · joined ${'${u['joined']}'.substring(0, 10)}', style: TextStyle(color: C.mut, fontSize: 12)),
             Row(children: [
               TextButton(onPressed: () => _update(u['id'], {'active': !(u['active'] == true)}), child: Text(u['active'] == true ? 'Disable' : 'Enable')),
               TextButton(onPressed: () => _update(u['id'], {'premium': !(u['premium'] == true)}), child: Text(u['premium'] == true ? 'Remove premium' : 'Make premium')),
             ]),
           ]))),
-        if (list.isEmpty) const Text('No users.', style: TextStyle(color: C.mut)),
+        if (list.isEmpty) Text('No users.', style: TextStyle(color: C.mut)),
       ]));
 
   Future<void> _update(dynamic id, J body) async {
@@ -137,6 +137,6 @@ class _AdminState extends ConsumerState<AdminPage> {
 
   Widget _feedback() => _wrap(ref.watch(adminFeedbackProvider), (list) => ListView(padding: const EdgeInsets.all(16), children: [
         for (final f in list) Card(child: ListTile(title: Text('${f['user__email']}'), subtitle: Text('${f['message']}'), trailing: Pill('${f['status']}'))),
-        if (list.isEmpty) const Text('No feedback yet.', style: TextStyle(color: C.mut)),
+        if (list.isEmpty) Text('No feedback yet.', style: TextStyle(color: C.mut)),
       ]));
 }

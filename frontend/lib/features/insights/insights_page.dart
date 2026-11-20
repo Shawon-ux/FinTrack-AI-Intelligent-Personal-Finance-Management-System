@@ -52,7 +52,7 @@ class _InsightsState extends ConsumerState<InsightsPage> {
         const SizedBox(height: 12),
         fc.when(
           loading: () => const Padding(padding: EdgeInsets.all(30), child: Center(child: CircularProgressIndicator())),
-          error: (e, _) => Card(child: Pad(child: Text(errText(e).contains('offline') ? 'AI insights need a connection.' : errText(e), style: const TextStyle(color: C.mut)))),
+          error: (e, _) => Card(child: Pad(child: Text(errText(e).contains('offline') ? 'AI insights need a connection.' : errText(e), style: TextStyle(color: C.mut)))),
           data: (f) {
             final past = tr.maybeWhen(data: (t) => [for (final d in (t['daily'] as List).skip(16)) (d['amount'] as num).toDouble()], orElse: () => <double>[0, 0]);
             final trends = List<J>.from((f['trends'] as List).map((e) => Map<String, dynamic>.from(e)));
@@ -71,10 +71,10 @@ class _InsightsState extends ConsumerState<InsightsPage> {
                 const SizedBox(height: 10),
                 LineChartW(actual: past.length < 2 ? [0, 0] : past, forecast: [for (final d in f['daily']) (d as num).toDouble()]),
                 Text('Range (90%): ${fmt(f['interval_30']['low'])} - ${fmt(f['interval_30']['high'])} · This month projected ${fmt(f['month_projection'])}',
-                    style: const TextStyle(color: C.mut, fontSize: 12)),
+                    style: TextStyle(color: C.mut, fontSize: 12)),
                 const SizedBox(height: 4),
                 Text('Backtest MAE ${f['mae'] ?? '-'} vs baseline ${f['baseline_mae'] ?? '-'} (${f['model_version']}). ${f['disclaimer']}',
-                    style: const TextStyle(color: C.mut, fontSize: 11)),
+                    style: TextStyle(color: C.mut, fontSize: 11)),
               ]))),
               Card(
                   child: Pad(
@@ -147,7 +147,7 @@ class _InsightsState extends ConsumerState<InsightsPage> {
                   child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                     Text('${a['transaction_detail']['merchant_name'] ?? a['transaction_detail']['category']} · ${fmt(double.tryParse('${a['transaction_detail']['amount']}'))}',
                         style: const TextStyle(fontWeight: FontWeight.w600)),
-                    Text('${a['explanation']}', style: const TextStyle(color: C.mut, fontSize: 12)),
+                    Text('${a['explanation']}', style: TextStyle(color: C.mut, fontSize: 12)),
                     if (a['status'] == 'open')
                       Row(children: [
                         TextButton(onPressed: () => _fb(a['id'], 'confirmed_ok'), child: const Text('Yes, it was me')),
@@ -157,7 +157,7 @@ class _InsightsState extends ConsumerState<InsightsPage> {
                       Pill('${a['status']}'.replaceAll('_', ' ')),
                   ])),
             const SizedBox(height: 6),
-            const Text('Flagged items are patterns worth reviewing, not confirmed fraud.', style: TextStyle(color: C.mut, fontSize: 11)),
+            Text('Flagged items are patterns worth reviewing, not confirmed fraud.', style: TextStyle(color: C.mut, fontSize: 11)),
           ]))),
           orElse: () => const SizedBox.shrink(),
         ),
@@ -178,7 +178,7 @@ class _InsightsState extends ConsumerState<InsightsPage> {
             Expanded(child: TextField(controller: input, onSubmitted: ask, decoration: const InputDecoration(hintText: 'Ask FinTrack AI…', isDense: true))),
             IconButton(onPressed: () => ask(input.text), icon: const Icon(Icons.send, color: C.p)),
           ]),
-          const Text('Answers use your real recorded data. Not professional financial advice.', style: TextStyle(color: C.mut, fontSize: 11)),
+          Text('Answers use your real recorded data. Not professional financial advice.', style: TextStyle(color: C.mut, fontSize: 11)),
         ]))),
       ]),
     );
@@ -187,7 +187,7 @@ class _InsightsState extends ConsumerState<InsightsPage> {
   Widget _stat(String l, String v) => Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(color: C.card2, borderRadius: BorderRadius.circular(14)),
-        child: Column(children: [Text(l, style: const TextStyle(color: C.mut, fontSize: 12)), Text(v, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold))]),
+        child: Column(children: [Text(l, style: TextStyle(color: C.mut, fontSize: 12)), Text(v, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold))]),
       );
 
   Widget _bubble(bool user, String t) => Align(

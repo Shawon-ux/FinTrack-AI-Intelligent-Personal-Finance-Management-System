@@ -16,6 +16,7 @@ class Profile(models.Model):
     employment_type = models.CharField(max_length=40, blank=True)
     is_premium = models.BooleanField(default=False)
     onboarded = models.BooleanField(default=False)
+    avatar = models.TextField(blank=True)  # small resized JPEG as a data URL (set by the client); private to the user
     ai_learning_consent = models.BooleanField(default=False)  # consent for anonymised training use
 
 

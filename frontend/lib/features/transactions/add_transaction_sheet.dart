@@ -61,7 +61,7 @@ class _AddState extends ConsumerState<AddTransactionSheet> {
       builder: (ctx) => AlertDialog(
         title: const Text('Scan receipt'),
         content: Column(mainAxisSize: MainAxisSize.min, children: [
-          const Text('On-device OCR (ML Kit) would fill this in. Paste or edit the OCR text:', style: TextStyle(fontSize: 12, color: C.mut)),
+          Text('On-device OCR (ML Kit) would fill this in. Paste or edit the OCR text:', style: TextStyle(fontSize: 12, color: C.mut)),
           const SizedBox(height: 8),
           TextField(controller: c, maxLines: 7),
         ]),
@@ -82,7 +82,7 @@ class _AddState extends ConsumerState<AddTransactionSheet> {
             const SizedBox(height: 6),
             Text('Total ${fmt(r['total'])}', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
             const SizedBox(height: 6),
-            const Text('Nothing is saved until you confirm.', style: TextStyle(color: C.mut, fontSize: 12)),
+            Text('Nothing is saved until you confirm.', style: TextStyle(color: C.mut, fontSize: 12)),
           ]),
           actions: [TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Discard')), TextButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('Use'))],
         ),
@@ -135,7 +135,7 @@ class _AddState extends ConsumerState<AddTransactionSheet> {
         const SizedBox(height: 10),
         TextField(controller: desc, decoration: const InputDecoration(labelText: 'Description', hintText: 'Paid ৳650 at KFC for dinner'), onEditingComplete: () { FocusScope.of(context).unfocus(); if (aiCat.isEmpty && !off) categorize(); }),
         Row(children: [
-          Expanded(child: Text(aiCat.isEmpty ? '' : '✨ AI: $aiCat (${((aiConf ?? 0) * 100).round()}%)${aiSource == 'personalised' ? ' · learned from you' : ''}', style: const TextStyle(color: C.mut, fontSize: 12))),
+          Expanded(child: Text(aiCat.isEmpty ? '' : '✨ AI: $aiCat (${((aiConf ?? 0) * 100).round()}%)${aiSource == 'personalised' ? ' · learned from you' : ''}', style: TextStyle(color: C.mut, fontSize: 12))),
           TextButton(onPressed: categorize, child: const Text('✨ Auto-categorise')),
         ]),
         if (type != 'transfer') ...[
