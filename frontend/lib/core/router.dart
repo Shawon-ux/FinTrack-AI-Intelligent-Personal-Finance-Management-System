@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../data/providers.dart';
 import '../features/auth/auth_pages.dart';
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
 import '../features/admin/admin_page.dart';
 import '../features/shell/shell_page.dart';
 
@@ -29,9 +29,9 @@ final routerProvider = Provider<GoRouter>((ref) {
     },
     routes: [
       GoRoute(path: '/', builder: (_, __) => const _HomeGate()),
-      GoRoute(path: '/welcome', builder: (_, __) => const WelcomePage()),
-      GoRoute(path: '/login', builder: (_, __) => const AuthPage(register: false)),
-      GoRoute(path: '/register', builder: (_, __) => const AuthPage(register: true)),
+      GoRoute(path: '/welcome', pageBuilder: (c, s) => _fade(s, const WelcomePage())),
+      GoRoute(path: '/login', pageBuilder: (c, s) => _fade(s, const AuthPage(register: false))),
+      GoRoute(path: '/register', pageBuilder: (c, s) => _fade(s, const AuthPage(register: true))),
     ],
   );
 });
@@ -45,3 +45,13 @@ class _HomeGate extends ConsumerWidget {
     return role == 'admin' ? const AdminPage() : const ShellPage();
   }
 }
+
+CustomTransitionPage<void> _fade(GoRouterState s, Widget child) => CustomTransitionPage<void>(
+      key: s.pageKey,
+      child: child,
+      transitionDuration: const Duration(milliseconds: 450),
+      transitionsBuilder: (context, anim, _, c) => FadeTransition(
+        opacity: CurvedAnimation(parent: anim, curve: Curves.easeOut),
+        child: SlideTransition(position: Tween(begin: const Offset(0, .04), end: Offset.zero).animate(CurvedAnimation(parent: anim, curve: Curves.easeOutCubic)), child: c),
+      ),
+    );

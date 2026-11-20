@@ -15,8 +15,9 @@ void main() {
   testWidgets('welcome screen renders', (tester) async {
     final c = ProviderContainer();
     await tester.pumpWidget(UncontrolledProviderScope(container: c, child: const FinTrackApp()));
-    await tester.pumpAndSettle();
+    await tester.pump(const Duration(seconds: 2)); // background animates forever, so no pumpAndSettle
     expect(find.text('Get Started'), findsOneWidget);
+    expect(find.text('FinTrack AI'), findsOneWidget);
   });
 
   test('login -> analytics -> offline add -> sync is idempotent', () async {
@@ -54,5 +55,17 @@ void main() {
     await c.read(authProvider.notifier).logout();
     await c.read(authProvider.notifier).authenticate('login', 'demo@fintrack.ai', 'demo1234');
     expect(() => c.read(apiProvider).get('/admin/stats/'), throwsA(isA<Object>()));
+  });
+
+  test('register does not log in; user then signs in', () async {
+    TestWidgetsFlutterBinding.ensureInitialized();
+    final c = ProviderContainer();
+    addTearDown(c.dispose);
+    final email = 'new${DateTime.now().millisecondsSinceEpoch}@test.dev';
+    await c.read(authProvider.notifier).register(email, 'longpass123', name: 'Tester');
+    expect(c.read(authProvider), isNull);               // not signed in yet
+    await c.read(authProvider.notifier).authenticate('login', email, 'longpass123');
+    expect(c.read(authProvider)?['email'], email);
+    await c.read(apiProvider).delete('/users/me/delete/');
   });
 }

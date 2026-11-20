@@ -31,16 +31,25 @@ class GradientButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Opacity(
         opacity: onTap == null ? .5 : 1,
-        child: InkWell(
-          borderRadius: BorderRadius.circular(14),
-          onTap: busy ? null : onTap,
+        // own Material so the gradient Ink paints locally (not under translucent parents)
+        child: Material(
+          type: MaterialType.transparency,
           child: Ink(
-            padding: const EdgeInsets.symmetric(vertical: 14),
-            decoration: BoxDecoration(gradient: C.grad, borderRadius: BorderRadius.circular(14)),
-            child: Center(
-                child: busy
-                    ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                    : Text(label, style: const TextStyle(fontWeight: FontWeight.w600))),
+            decoration: BoxDecoration(gradient: C.grad, borderRadius: BorderRadius.circular(14), boxShadow: [BoxShadow(color: C.p.withValues(alpha: .35), blurRadius: 16, offset: const Offset(0, 6))]),
+            child: InkWell(
+              borderRadius: BorderRadius.circular(14),
+              onTap: busy ? null : onTap,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 15),
+                child: Center(
+                    child: AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 200),
+                  child: busy
+                      ? const SizedBox(key: ValueKey('b'), width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2.2, color: Colors.white))
+                      : Text(label, key: ValueKey(label), style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15, color: Colors.white)),
+                )),
+              ),
+            ),
           ),
         ),
       );

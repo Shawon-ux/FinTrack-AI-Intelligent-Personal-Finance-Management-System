@@ -37,6 +37,11 @@ class AuthNotifier extends StateNotifier<J?> {
     await ref.read(txProvider.notifier).init();
   }
 
+  /// Creates the account but does NOT sign in - the user logs in afterwards.
+  Future<void> register(String email, String password, {String? name}) async {
+    await api.post('/auth/register/', {'email': email, 'password': password, if (name != null && name.isNotEmpty) 'name': name});
+  }
+
   Future<void> reloadMe() async {
     try {
       state = Map<String, dynamic>.from(await api.get('/users/me/'));

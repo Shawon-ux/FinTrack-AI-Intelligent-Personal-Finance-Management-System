@@ -23,6 +23,14 @@ Flutter SDK is at `C:\dev\flutter` (add `C:\dev\flutter\bin` to PATH).
 
 API: http://127.0.0.1:8000/api/v1/ · Django admin: http://127.0.0.1:8000/admin/
 
+## Install on an Android phone
+`dist/FinTrack-AI.apk` is a release build pointing at `http://192.168.0.101:8000` (this PC on Wi-Fi).
+1. Run the API on all interfaces: `cd backend && python manage.py runserver 0.0.0.0:8000`
+2. Allow port 8000 through Windows Firewall (admin PowerShell): `New-NetFirewallRule -DisplayName "FinTrack API" -Direction Inbound -Protocol TCP -LocalPort 8000 -Action Allow`
+3. Phone on the same Wi-Fi: copy the APK over, open it, allow "install unknown apps", launch, sign in.
+The server address can be changed inside the app (login screen -> server link) without rebuilding. Rebuild with another address: `build_apk.bat https://api.yourdomain.com`.
+The APK is signed with the debug key - fine for testing; for Play Store create a release keystore. iOS builds need a Mac (`flutter build ios`).
+
 ## Deploy
 - **Backend**: `docker compose up --build` (Postgres + gunicorn + nginx). Copy `.env.example` to `.env` first; `DEBUG=0` requires a real `SECRET_KEY`; CORS limited to `CORS_ALLOWED_ORIGINS`.
 - **Frontend (web)**: `cd frontend && flutter build web --release --dart-define=API_BASE=https://api.example.com` -> upload `build/web` to any static host (or let the compose nginx serve it).

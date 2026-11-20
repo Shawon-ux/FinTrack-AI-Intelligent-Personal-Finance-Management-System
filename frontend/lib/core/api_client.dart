@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'config.dart';
 
 class ApiException implements Exception {
@@ -20,9 +21,21 @@ class ApiClient {
   final _http = http.Client();
   void Function()? onSessionExpired;
 
+  /// Server address; defaults to the build-time API_BASE but can be changed in-app (saved on the device).
+  String base = apiBase;
+
+  Future<void> setBase(String url) async {
+    base = url.trim().replaceAll(RegExp(r'/+$'), '');
+    final p = await SharedPreferences.getInstance();
+    await p.setString('api_base', base);
+  }
+
   bool get hasSession => _refresh != null;
 
   Future<void> load() async {
+    try {
+      base = (await SharedPreferences.getInstance()).getString('api_base') ?? apiBase;
+    } catch (_) {}
     try {
       _access = await _store.read(key: 'access');
       _refresh = await _store.read(key: 'refresh');
@@ -54,7 +67,7 @@ class ApiClient {
 
   Future<dynamic> send(String method, String path, {Object? body, bool retry = true}) async {
     if (simulateOffline) throw ApiException('offline', offline: true);
-    final req = http.Request(method, Uri.parse('$apiBase/api/v1$path'));
+    final req = http.Request(method, Uri.parse('$base/api/v1$path'));
     req.headers['Content-Type'] = 'application/json';
     if (_access != null) req.headers['Authorization'] = 'Bearer $_access';
     if (body != null) req.body = jsonEncode(body);
@@ -77,7 +90,7 @@ class ApiClient {
 
   Future<bool> _refreshTokens() async {
     try {
-      final r = await _http.post(Uri.parse('$apiBase/api/v1/auth/token/refresh/'),
+      final r = await _http.post(Uri.parse('$base/api/v1/auth/token/refresh/'),
           headers: {'Content-Type': 'application/json'}, body: jsonEncode({'refresh': _refresh}));
       if (r.statusCode != 200) return false;
       final j = jsonDecode(r.body);
