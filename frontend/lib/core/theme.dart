@@ -37,6 +37,14 @@ ThemeData buildTheme(bool dark) {
     bottomSheetTheme: BottomSheetThemeData(backgroundColor: C.bg, showDragHandle: true, shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(26)))),
     appBarTheme: AppBarTheme(backgroundColor: C.bg, foregroundColor: C.text, elevation: 0),
     dialogTheme: DialogThemeData(backgroundColor: C.card),
+    chipTheme: ChipThemeData(
+      backgroundColor: C.card2,
+      selectedColor: C.p.withValues(alpha: .28),
+      side: BorderSide(color: C.line),
+      showCheckmark: false,
+      labelStyle: TextStyle(color: C.text, fontSize: 13),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(99)),
+    ),
     segmentedButtonTheme: SegmentedButtonThemeData(
       style: ButtonStyle(
         backgroundColor: WidgetStateProperty.resolveWith((st) => st.contains(WidgetState.selected) ? C.p.withValues(alpha: .22) : Colors.transparent),

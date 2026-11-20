@@ -23,6 +23,10 @@ from .serializers import *
 User = get_user_model()
 
 
+def notify_staff(kind, title, body):
+    Notification.objects.bulk_create([Notification(user=u, kind=kind, title=title, body=body) for u in User.objects.filter(is_staff=True, is_active=True)])
+
+
 def audit(request, action, detail=""):
     AuditLog.objects.create(user=request.user if request.user.is_authenticated else None, action=action, detail=detail[:200],
                             ip=request.META.get("REMOTE_ADDR"))
@@ -51,6 +55,7 @@ def register(request):
     Profile.objects.create(user=u)
     Account.objects.create(user=u, name="Cash", kind="cash")
     audit(request, "register", u.email)
+    notify_staff("signup", "New user signed up", f"{u.email} just created an account.")
     request.user = u; audit(request, "login", "after register")
     return Response(tokens(u), status=201)
 
@@ -65,6 +70,8 @@ def login(request):
     if not u or not u.is_active:
         AuditLog.objects.create(action="login_failed", detail=email[:100], ip=request.META.get("REMOTE_ADDR"))
         return Response({"detail": "Invalid email or password."}, status=401)
+    from django.contrib.auth.models import update_last_login
+    update_last_login(None, u)
     request.user = u; audit(request, "login")
     return Response(tokens(u))
 
@@ -327,60 +334,6 @@ def categories(request):
 
 @api_view(["POST"])
 def send_feedback(request):
-    Feedback.objects.create(user=request.user, message=str(request.data.get("message", ""))[:1000]); return Response({"ok": True})
-
-
-# ------------------ admin (aggregate only: no personal transaction details) ------------------
-class IsAdmin(permissions.BasePermission):
-    def has_permission(self, r, v):
-        return bool(r.user and r.user.is_authenticated and r.user.is_staff)
-
-
-@api_view(["GET"])
-@permission_classes([IsAdmin])
-def admin_stats(request):
-    now = timezone.now()
-    users = User.objects.filter(is_staff=False)
-    return Response({
-        "users": users.count(), "active_users": users.filter(is_active=True).count(),
-        "premium": Profile.objects.filter(is_premium=True).count(),
-        "new_7d": users.filter(date_joined__gte=now - timedelta(days=7)).count(),
-        "transactions": Transaction.objects.count(), "tx_24h": Transaction.objects.filter(created_at__gte=now - timedelta(days=1)).count(),
-        "anomaly_alerts": AnomalyAlert.objects.count(), "open_alerts": AnomalyAlert.objects.filter(status="open").count(),
-        "sync": SyncOperation.objects.aggregate(runs=Count("id"), failed=Sum("failed"), received=Sum("received")),
-        "notifications": Notification.objects.count(), "predictions": Prediction.objects.count(),
-        "models": list(ModelVersion.objects.values("name", "version", "metrics", "is_active", "trained_on")),
-        "open_feedback": Feedback.objects.filter(status="open").count(),
-        "signups": [{"date": (now - timedelta(days=i)).date().isoformat(),
-                     "count": users.filter(date_joined__date=(now - timedelta(days=i)).date()).count()} for i in range(13, -1, -1)],
-    })
-
-
-@api_view(["GET"])
-@permission_classes([IsAdmin])
-def admin_users(request):
-    rows = [{"id": u.id, "email": u.email, "name": u.first_name, "active": u.is_active, "premium": u.profile.is_premium if hasattr(u, "profile") else False,
-             "joined": u.date_joined, "tx_count": u.transactions.count()} for u in User.objects.filter(is_staff=False).order_by("-date_joined")[:100]]
-    return Response(rows)
-
-
-@api_view(["POST"])
-@permission_classes([IsAdmin])
-def admin_user_update(request, pk):
-    u = User.objects.get(pk=pk, is_staff=False)
-    if "active" in request.data: u.is_active = bool(request.data["active"]); u.save()
-    if "premium" in request.data: Profile.objects.filter(user=u).update(is_premium=bool(request.data["premium"]))
-    audit(request, "admin_user_update", f"{u.email} {dict(request.data)}")
+    Feedback.objects.create(user=request.user, message=str(request.data.get("message", ""))[:1000])
+    notify_staff("feedback", "New feedback", f"{request.user.email}: {str(request.data.get('message', ''))[:80]}")
     return Response({"ok": True})
-
-
-@api_view(["GET"])
-@permission_classes([IsAdmin])
-def admin_logs(request):
-    return Response(list(AuditLog.objects.order_by("-created_at").values("action", "detail", "ip", "created_at", "user__email")[:60]))
-
-
-@api_view(["GET"])
-@permission_classes([IsAdmin])
-def admin_feedback(request):
-    return Response(list(Feedback.objects.order_by("-created_at").values("id", "message", "status", "created_at", "user__email")[:50]))

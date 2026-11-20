@@ -90,4 +90,35 @@ void main() {
     await c2.read(themeProvider.notifier).load();
     expect(c2.read(themeProvider), ThemeMode.light);
   });
+
+  test('admin: create user, filter, broadcast reaches users, feedback reply notifies', () async {
+    TestWidgetsFlutterBinding.ensureInitialized();
+    final a = ProviderContainer(), u = ProviderContainer();
+    addTearDown(a.dispose);
+    addTearDown(u.dispose);
+    await a.read(authProvider.notifier).authenticate('login', 'admin@fintrack.ai', 'admin1234');
+    final api = a.read(apiProvider);
+    final email = 'adm${DateTime.now().millisecondsSinceEpoch}@test.dev';
+    final created = await api.post('/admin/users/', {'email': email, 'password': 'longpass123', 'name': 'Admin Made', 'role': 'premium'});
+    final id = created['id'];
+    final found = await api.get('/admin/users/?q=${Uri.encodeQueryComponent(email)}&status=&plan=premium');
+    expect(found['total'], 1);
+    final detail = await api.get('/admin/users/$id/');
+    expect(detail['counts']['transactions'], 0);
+
+    await u.read(authProvider.notifier).authenticate('login', email, 'longpass123');
+    await api.post('/admin/broadcast/', {'title': 'Test broadcast', 'body': 'Hello', 'audience': 'user', 'user_id': id});
+    final notes = asList(await u.read(apiProvider).get('/notifications/'));
+    expect(notes.any((n) => n['title'] == 'Test broadcast'), true);
+
+    await u.read(apiProvider).post('/feedback/', {'message': 'flutter test feedback'});
+    final fb = asList(await api.get('/admin/feedback/?status=open')).firstWhere((f) => f['message'] == 'flutter test feedback');
+    await api.post('/admin/feedback/${fb['id']}/', {'status': 'resolved', 'reply': 'Thanks!'});
+    final notes2 = asList(await u.read(apiProvider).get('/notifications/'));
+    expect(notes2.any((n) => n['kind'] == 'support'), true);
+
+    await api.post('/admin/users/$id/', {'active': false});
+    await expectLater(u.read(authProvider.notifier).authenticate('login', email, 'longpass123'), throwsA(isA<Object>())); // disabled can't sign in
+    await api.delete('/admin/users/$id/');
+  });
 }

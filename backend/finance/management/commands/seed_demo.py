@@ -68,6 +68,30 @@ class Command(BaseCommand):
                                        merchant_name="Unknown Resort", description="Dinner", transaction_date=now - timedelta(hours=3))
         from finance import services
         services.after_save(t)
+        # extra sample users so the admin console has something to track
+        User.objects.filter(username__endswith="@sample.fintrack.ai").delete()
+        names = [("Ayesha Rahman", "premium", 3, 40), ("Tanvir Hasan", "user", 1, 14), ("Nusrat Jahan", "user", 6, 60), ("Imran Hossain", "user", 0, 3), ("Sadia Islam", "premium", 2, 25), ("Karim Uddin", "user", 20, 90)]
+        for nm, role, last, joined in names:
+            e = nm.split()[0].lower() + "@sample.fintrack.ai"
+            su = User.objects.create_user(username=e, email=e, password="sample1234", first_name=nm)
+            su.date_joined = now - timedelta(days=joined); su.last_login = now - timedelta(days=last, hours=random.randint(0, 6))
+            if nm.startswith("Karim"): su.is_active = False
+            su.save()
+            Profile.objects.create(user=su, is_premium=role == "premium", onboarded=True, monthly_income=random.choice([30000, 45000, 60000]))
+            acc = Account.objects.create(user=su, name="Cash", kind="cash")
+            for _ in range(random.randint(8, 40)):
+                cat, sub, m, desc, lo, hi, w = random.choice(SPEND)
+                Transaction.objects.create(user=su, account=acc, transaction_type="expense", amount=round(random.uniform(lo, hi)), category=cat, subcategory=sub, merchant_name=m, description=desc, transaction_date=now - timedelta(days=random.randint(0, max(joined, 1))))
+            AuditLog.objects.create(user=su, action="login", ip="203.0.113.%d" % random.randint(2, 200))
+        fu = User.objects.get(username="tanvir@sample.fintrack.ai")
+        Feedback.objects.all().delete(); Broadcast.objects.all().delete()
+        Feedback.objects.create(user=fu, message="Love the receipt scanner! Could you add dark mode scheduling?")
+        Feedback.objects.create(user=User.objects.get(username="nusrat@sample.fintrack.ai"), message="My budget alert fired twice yesterday.", status="in_progress")
+        Feedback.objects.create(user=User.objects.get(username="ayesha@sample.fintrack.ai"), message="Can I export my data to Excel?", status="resolved", reply="CSV export is available in Profile; Excel is coming soon.", replied_at=now)
+        Broadcast.objects.create(title="Welcome to FinTrack AI", body="Thanks for joining! Add your first transaction to get smart insights.", audience="all", recipients=7, created_by=admin)
+        Notification.objects.filter(user=admin).delete()
+        Notification.objects.create(user=admin, kind="signup", title="New user signed up", body="imran@sample.fintrack.ai just created an account.")
+        Notification.objects.create(user=admin, kind="feedback", title="New feedback", body="tanvir@sample.fintrack.ai: Love the receipt scanner!")
         ModelVersion.objects.all().delete()
         ModelVersion.objects.create(name="categorizer", version=categorizer.VERSION, metrics=categorizer.metrics(), trained_on="synthetic")
         ModelVersion.objects.create(name="forecaster", version="fc-ridge-lag-1.0", metrics={"validation": "time-based 80/20 backtest vs mean baseline"}, trained_on="per-user history")

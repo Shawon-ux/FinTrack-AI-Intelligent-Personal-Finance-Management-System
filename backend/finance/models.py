@@ -186,5 +186,17 @@ class SyncOperation(models.Model):
 class Feedback(models.Model):
     user = models.ForeignKey(U, on_delete=models.CASCADE)
     message = models.TextField()
-    status = models.CharField(max_length=10, default="open")
+    status = models.CharField(max_length=12, default="open")  # open | in_progress | resolved
+    reply = models.TextField(blank=True)
+    replied_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+class Broadcast(models.Model):
+    """An announcement sent by an administrator to a group of users (in-app notifications)."""
+    title = models.CharField(max_length=80)
+    body = models.TextField()
+    audience = models.CharField(max_length=12, default="all")  # all | premium | free | user
+    recipients = models.IntegerField(default=0)
+    created_by = models.ForeignKey(U, null=True, on_delete=models.SET_NULL, related_name="+")
     created_at = models.DateTimeField(auto_now_add=True)
